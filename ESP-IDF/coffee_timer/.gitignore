@@ -42,6 +42,7 @@
 build/
 Build/
 build-*/
+managed_components/
 
 # CMake generated files
 CMakeFiles/
