@@ -1,11 +1,18 @@
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
+#include "freertos/semphr.h" // Added for Semaphore
 #include "lcd_touch.h"
 #include "esp_log.h"
 #include "src/i2c_bsp/i2c_bsp.h"
 
+// Reference the global mutex defined in your main file
+extern SemaphoreHandle_t i2c_mutex;
+i2c_master_bus_handle_t g_i2c_bus_handle = NULL;
+
 LcdTouchPanel::LcdTouchPanel(I2cMasterBus& i2cbus,int dev_addr,int touch_rst_pin,int touch_int_pin) : i2cbus_(i2cbus) {
     i2c_master_bus_handle_t BusHandle = i2cbus_.Get_I2cBusHandle();
+    g_i2c_bus_handle = BusHandle;
+    
     i2c_device_config_t     dev_cfg   = {};
     dev_cfg.dev_addr_length           = I2C_ADDR_BIT_LEN_7;
     dev_cfg.scl_speed_hz              = 300000;
@@ -43,17 +50,24 @@ uint8_t LcdTouchPanel::GetCoords(uint16_t *x, uint16_t *y) {
     uint8_t GestureNum[2] = {0, 0};
     uint8_t Event         = 0x01;
     uint8_t Gpos[4]       = {0};
-    i2cbus_.i2c_read_buff(touch_dev_handle, 0x02, GestureNum, 2);
-    Event = GestureNum[1] >> 6;
-    if (GestureNum[0] && (Event != 0x01)) {
-        i2cbus_.i2c_read_buff(touch_dev_handle, 0x03, Gpos, 4);
-        *x = (((uint16_t) Gpos[0] & 0x0f) << 8 | Gpos[1]);
-        *y = (((uint16_t) Gpos[2] & 0x0f) << 8 | Gpos[3]);
-        return 1;
+
+    // Attempt to take the mutex with a 10ms timeout
+    if (i2c_mutex != NULL && xSemaphoreTake(i2c_mutex, pdMS_TO_TICKS(10)) == pdTRUE) {
+        i2cbus_.i2c_read_buff(touch_dev_handle, 0x02, GestureNum, 2);
+        Event = GestureNum[1] >> 6;
+        
+        if (GestureNum[0] && (Event != 0x01)) {
+            i2cbus_.i2c_read_buff(touch_dev_handle, 0x03, Gpos, 4);
+            *x = (((uint16_t) Gpos[0] & 0x0f) << 8 | Gpos[1]);
+            *y = (((uint16_t) Gpos[2] & 0x0f) << 8 | Gpos[3]);
+            
+            xSemaphoreGive(i2c_mutex); // Release before returning 1
+            return 1;
+        }
+        
+        xSemaphoreGive(i2c_mutex); // Release if no valid touch event
     }
+    
+    // Returns 0 if bus was busy or no touch detected
     return 0;
 }
-
-
-
-

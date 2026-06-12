@@ -4,6 +4,12 @@
 #include "src/i2c_bsp/i2c_bsp.h"
 #include "driver/gpio.h"
 
+#include <freertos/FreeRTOS.h>
+#include <freertos/semphr.h>
+
+extern SemaphoreHandle_t i2c_mutex;
+extern i2c_master_bus_handle_t g_i2c_bus_handle;
+
 class LcdTouchPanel
 {
 private:
