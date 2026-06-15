@@ -7,6 +7,7 @@
 
 void display_setup() {
   Lvgl_PortInit();
+  Lcd_SetBacklight(70);
   if (lvgl_lock(0)) {
     ui_init();
     lvgl_unlock();
@@ -38,4 +39,11 @@ void display_updateTimer(int timer, int countFrom) {
   lv_label_set_text_fmt(ui_Countdown, "%02d:%02d", minutes, seconds);
   int progress = 100 - ((timer * 100) / countFrom);
   lv_arc_set_value(ui_Arc1, progress);
+}
+
+void display_enterSleepMode() {
+  if (lvgl_lock(0)) {
+    Lcd_Sleep();
+    lvgl_unlock();
+  }
 }

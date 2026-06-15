@@ -23,9 +23,30 @@ void lis2dw12_setup() {
   i2c_master_transmit_receive(lis2dw12_handle, &reg, 1, &id, 1, -1);
 
   if (id == 0x44) {
-    Serial.println("LIS2DW12 Initialized!");
-    uint8_t init_cmd[2] = { 0x20, 0x54 };  // 100Hz ODR, High-Performance Mode
-    i2c_master_transmit(lis2dw12_handle, init_cmd, 2, -1);
+    Serial.println("LIS2DW12 Initialized in Low Power Mode!");
+
+    // 1. CTRL1: 12.5Hz ODR, Low-Power Mode 4 (bits 4-3: 11)
+    uint8_t ctrl1[2] = { 0x20, 0x30 };
+    i2c_master_transmit(lis2dw12_handle, ctrl1, 2, -1);
+
+    // 2. Configure Wake-Up Interrupts (Threshold, Duration, Routing, Latching)
+    uint8_t int_cfg[][2] = {
+      { 0x22, 0x10 },  // CTRL3: Enable LIR (Latch Interrupt Request) via bit 4
+      { 0x34, 0x0A },  // WAKE_UP_THS: Increased threshold (~625mg) to ignore minor noise
+      { 0x35, 0x03 },  // WAKE_UP_DUR: Duration (3 cycle)
+      { 0x3F, 0x20 },  // CTRL7: Bit 5 (INTERRUPTS_ENABLE) must be 1
+      { 0x23, 0x20 }   // CTRL4_INT1_PAD_CTRL: Route Wake-Up to INT1
+    };
+
+    // Update loop limit to 5
+    for (int i = 0; i < 5; i++) {
+      i2c_master_transmit(lis2dw12_handle, int_cfg[i], 2, -1);
+    }
+
+    // 3. Clear pending interrupts
+    uint8_t dummy_data;
+    uint8_t clear_reg = 0x2B | 0x80;  // WAKE_UP_SRC with auto-increment
+    i2c_master_transmit_receive(lis2dw12_handle, &clear_reg, 1, &dummy_data, 1, -1);
   }
 }
 
@@ -92,6 +113,6 @@ float lis2dw12_getTilt() {
 
 Orientation lis2dw12_getOrientation() {
   float roll = lis2dw12_getRoll();
-  if(roll == -1) return Orientation::UNKNOWN;
+  if (roll == -1) return Orientation::UNKNOWN;
   return angleToOrientation(roll);
 }

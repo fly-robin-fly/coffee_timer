@@ -5,3 +5,4 @@
 void display_setup();
 void display_setOrientation(Orientation orientation);
 void display_updateTimer(int timer, int countFrom);
+void display_enterSleepMode();

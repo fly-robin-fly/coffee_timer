@@ -173,6 +173,13 @@ void Lcd_SetRotation(uint8_t brig) {
     esp_lcd_panel_io_tx_param(io_handle, lcd_cmd, &param, 1);
 }
 
+void Lcd_Sleep(void) {
+    Lcd_SetBacklight(0);
+    esp_lcd_panel_io_tx_param(io_handle, 0x28, NULL, 0);
+    esp_lcd_panel_io_tx_param(io_handle, 0x10, NULL, 0);
+
+}
+
 void Lvgl_PortInit(void) {
     lvgl_mux = xSemaphoreCreateMutex();
     assert(lvgl_mux);
