@@ -17,11 +17,12 @@ LcdTouchPanel touch_dev(i2c_dev,TOUCH_ADDR);
 
 #define LCD_BIT_PER_PIXEL (16)
 
-static lv_disp_draw_buf_t        disp_buf;
-static lv_disp_drv_t             disp_drv;
 static esp_lcd_panel_handle_t    panel_handle = NULL;
 static esp_lcd_panel_io_handle_t io_handle    = NULL;
 static SemaphoreHandle_t         lvgl_mux     = NULL;
+static SemaphoreHandle_t flush_done_semaphore = NULL; 
+#define BYTES_PER_PIXEL (LV_COLOR_FORMAT_GET_SIZE(LV_COLOR_FORMAT_RGB565))
+#define BUFF_SIZE (LCD_H_RES * LVGL_BUF_HEIGHT * BYTES_PER_PIXEL)
 
 static const sh8601_lcd_init_cmd_t lcd_init_cmds[] = {
     {0xFE, (uint8_t[]) {0x00}, 1, 0},
@@ -38,10 +39,19 @@ static const sh8601_lcd_init_cmd_t lcd_init_cmds[] = {
     {0x29, (uint8_t[]) {0x00}, 0, 0},
 };
 
+void Lcd_SetRotation(uint8_t brig) {
+    uint32_t lcd_cmd = 0x36;
+    lcd_cmd &= 0xff;
+    lcd_cmd <<= 8;
+    lcd_cmd |= 0x02 << 24;
+    uint8_t param = brig;
+    esp_lcd_panel_io_tx_param(io_handle, lcd_cmd, &param, 1);
+}
+
 static bool Lcd_OnColorTransDone(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_io_event_data_t *edata, void *user_ctx) {
-    lv_disp_drv_t *disp_driver = (lv_disp_drv_t *) user_ctx;
-    lv_disp_flush_ready(disp_driver);
-    return false;
+    BaseType_t high_task_awoken = pdFALSE;
+    xSemaphoreGiveFromISR(flush_done_semaphore, &high_task_awoken);
+    return high_task_awoken == pdTRUE;
 }
 
 static void Lvgl_LcdPanelIinit(int LcdHOST) {
@@ -61,7 +71,7 @@ static void Lvgl_LcdPanelIinit(int LcdHOST) {
     io_config.pclk_hz                       = 40 * 1000 * 1000;
     io_config.trans_queue_depth             = 10;
     io_config.on_color_trans_done           = Lcd_OnColorTransDone;
-    io_config.user_ctx                      = &disp_drv;
+    //io_config.user_ctx                      = &disp_drv;
     io_config.lcd_cmd_bits                  = 32;
     io_config.lcd_param_bits                = 8;
     io_config.flags.quad_mode               = true;
@@ -81,19 +91,25 @@ static void Lvgl_LcdPanelIinit(int LcdHOST) {
     ESP_ERROR_CHECK(esp_lcd_new_panel_sh8601(io_handle, &panel_config, &panel_handle));
     ESP_ERROR_CHECK(esp_lcd_panel_reset(panel_handle));
     ESP_ERROR_CHECK(esp_lcd_panel_init(panel_handle));
+    Lcd_SetRotation(0xC0);
 }
 
-static void lvgl_flush_cb(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_map) {
-    esp_lcd_panel_handle_t panel    = (esp_lcd_panel_handle_t) drv->user_data;
+static void lvgl_flush_cb(lv_display_t * disp, const lv_area_t * area, uint8_t * color_p) {
+    esp_lcd_panel_handle_t panel = (esp_lcd_panel_handle_t)lv_display_get_user_data(disp);
+    lv_draw_sw_rgb565_swap(color_p, lv_area_get_width(area) * lv_area_get_height(area));
+
     const int              offsetx1 = area->x1 + 0x06;
     const int              offsetx2 = area->x2 + 0x06;
     const int              offsety1 = area->y1;
     const int              offsety2 = area->y2;
 
-    esp_lcd_panel_draw_bitmap(panel, offsetx1, offsety1, offsetx2 + 1, offsety2 + 1, color_map);
+    esp_lcd_panel_draw_bitmap(panel, offsetx1, offsety1, offsetx2 + 1, offsety2 + 1, color_p);
+    //lv_disp_flush_ready(disp);
 }
 
-void lvgl_rounder_cb(struct _lv_disp_drv_t *disp_drv, lv_area_t *area) {
+void lvgl_rounder_cb(lv_event_t *e) {
+    lv_area_t *area = (lv_area_t *)lv_event_get_param(e);
+
     uint16_t x1 = area->x1;
     uint16_t x2 = area->x2;
 
@@ -109,26 +125,14 @@ void lvgl_rounder_cb(struct _lv_disp_drv_t *disp_drv, lv_area_t *area) {
 
 static void lvgl_touch_cb(lv_indev_drv_t * drv, lv_indev_data_t * data) {
     uint16_t x, y;
-    if (touch_dev.GetCoords(&x, &y)) { // Check success
+    if (touch_dev.GetCoords(&x, &y) /* check success */) {
         
-        // Map based on current hardware rotation (Assuming LCD_H_RES == LCD_V_RES)
-        switch (g_current_rotation) {
-            case APP_DISP_ROT_0:
-                data->point.x = x;
-                data->point.y = y;
-                break;
-            case APP_DISP_ROT_90:
-                data->point.x = y;
-                data->point.y = LCD_H_RES - x;
-                break;
-            case APP_DISP_ROT_180:
-                data->point.x = LCD_H_RES - x;
-                data->point.y = LCD_V_RES - y;
-                break;
-            case APP_DISP_ROT_270:
-                data->point.x = LCD_V_RES - y;
-                data->point.y = x;
-                break;
+        if (g_is_rotated) {
+            data->point.x = LCD_H_RES - x;
+            data->point.y = LCD_V_RES - y;
+        } else {
+            data->point.x = x;
+            data->point.y = y;
         }
         
         data->state = LV_INDEV_STATE_PRESSED;
@@ -136,6 +140,7 @@ static void lvgl_touch_cb(lv_indev_drv_t * drv, lv_indev_data_t * data) {
         data->state = LV_INDEV_STATE_RELEASED;
     }
 }
+
 static void increase_lvgl_tick(void *arg) {
     lv_tick_inc(LVGL_TICK_PERIOD_MS);
 }
@@ -177,44 +182,39 @@ void Lcd_SetBacklight(uint8_t brig) {
     esp_lcd_panel_io_tx_param(io_handle, lcd_cmd, &param, 1);
 }
 
-void Lcd_SetRotation(uint8_t brig) {
-    uint32_t lcd_cmd = 0x36;
-    lcd_cmd &= 0xff;
-    lcd_cmd <<= 8;
-    lcd_cmd |= 0x02 << 24;
-    uint8_t param = brig;
-    esp_lcd_panel_io_tx_param(io_handle, lcd_cmd, &param, 1);
+static void lvgl_wait_cb(lv_display_t * disp) 
+{
+    xSemaphoreTake(flush_done_semaphore, portMAX_DELAY);
 }
 
 void Lvgl_PortInit(void) {
+    flush_done_semaphore = xSemaphoreCreateBinary();
+    assert(flush_done_semaphore);
     lvgl_mux = xSemaphoreCreateMutex();
     assert(lvgl_mux);
 
     Lvgl_LcdPanelIinit(LCD_HOST);
 
     lv_init();
-    lv_color_t *buffer1 = (lv_color_t *) heap_caps_malloc(LCD_H_RES * LVGL_BUF_HEIGHT * sizeof(lv_color_t), MALLOC_CAP_DMA);
+    lv_display_t * disp = lv_display_create(LCD_H_RES, LCD_V_RES); 
+    lv_display_set_flush_cb(disp, lvgl_flush_cb);                  
+    lv_display_set_flush_wait_cb(disp,lvgl_wait_cb);
+
+    uint8_t *buffer1 = NULL;
+    uint8_t *buffer2 = NULL;
+    buffer1 = (uint8_t *)heap_caps_malloc(BUFF_SIZE, MALLOC_CAP_DMA);
+    buffer2 = (uint8_t *)heap_caps_malloc(BUFF_SIZE, MALLOC_CAP_DMA);
     assert(buffer1);
-    lv_color_t *buffer2 = (lv_color_t *) heap_caps_malloc(LCD_H_RES * LVGL_BUF_HEIGHT * sizeof(lv_color_t), MALLOC_CAP_DMA);
     assert(buffer2);
+    lv_display_set_buffers(disp, buffer1, buffer2, BUFF_SIZE, LV_DISPLAY_RENDER_MODE_PARTIAL);
+    lv_display_set_user_data(disp, panel_handle);
+    lv_display_add_event_cb(disp,lvgl_rounder_cb,LV_EVENT_INVALIDATE_AREA,NULL);
+    
+    lv_indev_t *touch_indev = NULL;
+    touch_indev = lv_indev_create();
+    lv_indev_set_type(touch_indev, LV_INDEV_TYPE_POINTER);
+    lv_indev_set_read_cb(touch_indev, lvgl_touch_cb);
 
-    lv_disp_draw_buf_init(&disp_buf, buffer1, buffer2, LCD_H_RES * LVGL_BUF_HEIGHT);
-
-    lv_disp_drv_init(&disp_drv);
-    disp_drv.hor_res    = LCD_H_RES;
-    disp_drv.ver_res    = LCD_V_RES;
-    disp_drv.flush_cb   = lvgl_flush_cb;
-    disp_drv.rounder_cb = lvgl_rounder_cb;
-    disp_drv.draw_buf   = &disp_buf;
-    disp_drv.user_data  = panel_handle;
-    lv_disp_t *disp     = lv_disp_drv_register(&disp_drv);
-
-    static lv_indev_drv_t indev_drv;
-    lv_indev_drv_init(&indev_drv);
-    indev_drv.type    = LV_INDEV_TYPE_POINTER;
-    indev_drv.disp    = disp;
-    indev_drv.read_cb = lvgl_touch_cb;
-    lv_indev_drv_register(&indev_drv);
 
     esp_timer_create_args_t lvgl_tick_timer_args = {};
     lvgl_tick_timer_args.callback                = &increase_lvgl_tick;
@@ -225,31 +225,17 @@ void Lvgl_PortInit(void) {
     ESP_ERROR_CHECK(esp_timer_start_periodic(lvgl_tick_timer, LVGL_TICK_PERIOD_MS * 1000));
 
     xTaskCreate(lvgl_port_task, "LVGL", LVGL_TASK_STACK_SIZE, NULL, LVGL_TASK_PRIORITY, NULL);
-    Lcd_SetRotation(0xC0);
 }
 
 
-app_disp_rot_t g_current_rotation = APP_DISP_ROT_0;
+bool g_is_rotated = false;
 
-void App_SetRotation(app_disp_rot_t rotation) {
-    if (g_current_rotation == rotation) return;
-
-    bool swap_xy = false;
-    bool mirror_x = false;
-    bool mirror_y = false;
-
-    // Standard MADCTL orientation mapping
-    // Note: 90 and 270 mirror directions might need to be swapped depending on the panel's physical origin
-    switch (rotation) {
-        case APP_DISP_ROT_0:   swap_xy = false; mirror_x = false; mirror_y = false; break;
-        case APP_DISP_ROT_90:  swap_xy = true;  mirror_x = true;  mirror_y = false; break;
-        case APP_DISP_ROT_180: swap_xy = false; mirror_x = true;  mirror_y = true;  break;
-        case APP_DISP_ROT_270: swap_xy = true;  mirror_x = false; mirror_y = true;  break;
-    }
+void App_SetRotation(bool rotate_180) {
+    if (g_is_rotated == rotate_180) return; // Prevent redundant SPI commands
 
     lvgl_lock(-1);
-    esp_lcd_panel_swap_xy(panel_handle, swap_xy);
-    esp_lcd_panel_mirror(panel_handle, mirror_x, mirror_y);
-    g_current_rotation = rotation;
+    // esp_lcd_panel_mirror handles the MADCTL hardware flip natively
+    esp_lcd_panel_mirror(panel_handle, rotate_180, rotate_180); 
+    g_is_rotated = rotate_180;
     lvgl_unlock();
 }
