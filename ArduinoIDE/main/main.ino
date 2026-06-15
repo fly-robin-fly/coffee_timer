@@ -57,13 +57,13 @@ void setup() {
 }
 
 void loop() {
-  vTaskDelay(pdMS_TO_TICKS(1000));
+  vTaskDelay(pdMS_TO_TICKS(2000));
   App_SetRotation(APP_DISP_ROT_0);
-  vTaskDelay(pdMS_TO_TICKS(1000));
+  vTaskDelay(pdMS_TO_TICKS(2000));
   App_SetRotation(APP_DISP_ROT_90);
-  vTaskDelay(pdMS_TO_TICKS(1000));
+  vTaskDelay(pdMS_TO_TICKS(2000));
   App_SetRotation(APP_DISP_ROT_180);
-  vTaskDelay(pdMS_TO_TICKS(1000));
+  vTaskDelay(pdMS_TO_TICKS(2000));
   App_SetRotation(APP_DISP_ROT_270);
   // Serial.println("ping");
 

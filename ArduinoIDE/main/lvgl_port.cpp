@@ -107,35 +107,22 @@ void lvgl_rounder_cb(struct _lv_disp_drv_t *disp_drv, lv_area_t *area) {
     area->y2 = ((y2 >> 1) << 1) + 1;
 }
 
-static void lvgl_touch_cb(lv_indev_drv_t * drv, lv_indev_data_t * data) {
-    uint16_t x, y;
-    if (touch_dev.GetCoords(&x, &y)) { // Check success
-        
-        // Map based on current hardware rotation (Assuming LCD_H_RES == LCD_V_RES)
-        switch (g_current_rotation) {
-            case APP_DISP_ROT_0:
-                data->point.x = x;
-                data->point.y = y;
-                break;
-            case APP_DISP_ROT_90:
-                data->point.x = y;
-                data->point.y = LCD_H_RES - x;
-                break;
-            case APP_DISP_ROT_180:
-                data->point.x = LCD_H_RES - x;
-                data->point.y = LCD_V_RES - y;
-                break;
-            case APP_DISP_ROT_270:
-                data->point.x = LCD_V_RES - y;
-                data->point.y = x;
-                break;
-        }
-        
+static void lvgl_touch_cb(lv_indev_drv_t *drv, lv_indev_data_t *data) {
+    uint16_t      x        = 0x00;
+    uint16_t      y        = 0x00;
+    if (touch_dev.GetCoords(&x, &y)) {
+        data->point.x = (LCD_H_RES - x);
+        data->point.y = (LCD_H_RES - y);
+        if (data->point.x > LCD_H_RES)
+            data->point.x = LCD_H_RES;
+        if (data->point.y > LCD_V_RES)
+            data->point.y = LCD_V_RES;
         data->state = LV_INDEV_STATE_PRESSED;
     } else {
         data->state = LV_INDEV_STATE_RELEASED;
     }
 }
+
 static void increase_lvgl_tick(void *arg) {
     lv_tick_inc(LVGL_TICK_PERIOD_MS);
 }
@@ -229,27 +216,3 @@ void Lvgl_PortInit(void) {
 }
 
 
-app_disp_rot_t g_current_rotation = APP_DISP_ROT_0;
-
-void App_SetRotation(app_disp_rot_t rotation) {
-    if (g_current_rotation == rotation) return;
-
-    bool swap_xy = false;
-    bool mirror_x = false;
-    bool mirror_y = false;
-
-    // Standard MADCTL orientation mapping
-    // Note: 90 and 270 mirror directions might need to be swapped depending on the panel's physical origin
-    switch (rotation) {
-        case APP_DISP_ROT_0:   swap_xy = false; mirror_x = false; mirror_y = false; break;
-        case APP_DISP_ROT_90:  swap_xy = true;  mirror_x = true;  mirror_y = false; break;
-        case APP_DISP_ROT_180: swap_xy = false; mirror_x = true;  mirror_y = true;  break;
-        case APP_DISP_ROT_270: swap_xy = true;  mirror_x = false; mirror_y = true;  break;
-    }
-
-    lvgl_lock(-1);
-    esp_lcd_panel_swap_xy(panel_handle, swap_xy);
-    esp_lcd_panel_mirror(panel_handle, mirror_x, mirror_y);
-    g_current_rotation = rotation;
-    lvgl_unlock();
-}

@@ -6,9 +6,9 @@
 #include "ui.h"
 
 lv_obj_t * ui_Screen1 = NULL;
-lv_obj_t * ui_Arc1 = NULL;
 lv_obj_t * ui_Battery = NULL;
 lv_obj_t * ui_BatteryLabel = NULL;
+lv_obj_t * ui_Arc1 = NULL;
 lv_obj_t * ui_Countdown = NULL;
 // event funtions
 
@@ -18,24 +18,6 @@ void ui_Screen1_screen_init(void)
 {
     ui_Screen1 = lv_obj_create(NULL);
     lv_obj_clear_flag(ui_Screen1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-
-    ui_Arc1 = lv_arc_create(ui_Screen1);
-    lv_obj_set_width(ui_Arc1, 450);
-    lv_obj_set_height(ui_Arc1, 450);
-    lv_obj_set_x(ui_Arc1, 1);
-    lv_obj_set_y(ui_Arc1, 3);
-    lv_obj_set_align(ui_Arc1, LV_ALIGN_CENTER);
-    lv_obj_clear_flag(ui_Arc1, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE |
-                      LV_OBJ_FLAG_GESTURE_BUBBLE | LV_OBJ_FLAG_SNAPPABLE);     /// Flags
-    lv_arc_set_value(ui_Arc1, 50);
-    lv_obj_set_style_arc_width(ui_Arc1, 25, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    lv_obj_set_style_arc_width(ui_Arc1, 25, LV_PART_INDICATOR | LV_STATE_DEFAULT);
-
-    lv_obj_set_style_shadow_color(ui_Arc1, lv_color_hex(0x969696), LV_PART_KNOB | LV_STATE_DEFAULT);
-    lv_obj_set_style_shadow_opa(ui_Arc1, 255, LV_PART_KNOB | LV_STATE_DEFAULT);
-    lv_obj_set_style_shadow_width(ui_Arc1, 10, LV_PART_KNOB | LV_STATE_DEFAULT);
-    lv_obj_set_style_shadow_spread(ui_Arc1, 3, LV_PART_KNOB | LV_STATE_DEFAULT);
 
     ui_Battery = lv_bar_create(ui_Screen1);
     lv_bar_set_value(ui_Battery, 25, LV_ANIM_OFF);
@@ -61,6 +43,24 @@ void ui_Screen1_screen_init(void)
     lv_obj_set_style_text_color(ui_BatteryLabel, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_BatteryLabel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
+    ui_Arc1 = lv_arc_create(ui_Screen1);
+    lv_obj_set_width(ui_Arc1, 450);
+    lv_obj_set_height(ui_Arc1, 450);
+    lv_obj_set_x(ui_Arc1, 1);
+    lv_obj_set_y(ui_Arc1, 3);
+    lv_obj_set_align(ui_Arc1, LV_ALIGN_CENTER);
+    lv_obj_clear_flag(ui_Arc1, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE |
+                      LV_OBJ_FLAG_GESTURE_BUBBLE | LV_OBJ_FLAG_SNAPPABLE);     /// Flags
+    lv_arc_set_value(ui_Arc1, 50);
+    lv_obj_set_style_arc_width(ui_Arc1, 25, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    lv_obj_set_style_arc_width(ui_Arc1, 25, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+
+    lv_obj_set_style_shadow_color(ui_Arc1, lv_color_hex(0x969696), LV_PART_KNOB | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_opa(ui_Arc1, 255, LV_PART_KNOB | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_width(ui_Arc1, 10, LV_PART_KNOB | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_spread(ui_Arc1, 3, LV_PART_KNOB | LV_STATE_DEFAULT);
+
     ui_Countdown = lv_label_create(ui_Screen1);
     lv_obj_set_width(ui_Countdown, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_Countdown, LV_SIZE_CONTENT);    /// 1
@@ -76,9 +76,9 @@ void ui_Screen1_screen_destroy(void)
 
     // NULL screen variables
     ui_Screen1 = NULL;
-    ui_Arc1 = NULL;
     ui_Battery = NULL;
     ui_BatteryLabel = NULL;
+    ui_Arc1 = NULL;
     ui_Countdown = NULL;
 
 }
