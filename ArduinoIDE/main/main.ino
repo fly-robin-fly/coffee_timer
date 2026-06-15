@@ -58,13 +58,14 @@ void setup() {
 
 void loop() {
   vTaskDelay(pdMS_TO_TICKS(2000));
-  App_SetRotation(APP_DISP_ROT_0);
+  lv_disp_set_rotation(NULL, LV_DISP_ROT_NONE);
   vTaskDelay(pdMS_TO_TICKS(2000));
-  App_SetRotation(APP_DISP_ROT_90);
+  lv_disp_set_rotation(NULL, LV_DISP_ROT_90);
   vTaskDelay(pdMS_TO_TICKS(2000));
-  App_SetRotation(APP_DISP_ROT_180);
+  lv_disp_set_rotation(NULL, LV_DISP_ROT_180);
   vTaskDelay(pdMS_TO_TICKS(2000));
-  App_SetRotation(APP_DISP_ROT_270);
+  lv_disp_set_rotation(NULL, LV_DISP_ROT_270);
+
   // Serial.println("ping");
 
   // float roll, pitch;

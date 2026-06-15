@@ -194,6 +194,8 @@ void Lvgl_PortInit(void) {
     disp_drv.rounder_cb = lvgl_rounder_cb;
     disp_drv.draw_buf   = &disp_buf;
     disp_drv.user_data  = panel_handle;
+    disp_drv.sw_rotate = 1;                  // <--- ADD THIS
+    disp_drv.rotated = LV_DISP_ROT_NONE;     // <--- Starting orientation
     lv_disp_t *disp     = lv_disp_drv_register(&disp_drv);
 
     static lv_indev_drv_t indev_drv;
