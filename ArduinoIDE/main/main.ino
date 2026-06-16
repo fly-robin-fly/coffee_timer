@@ -10,7 +10,7 @@ int timer = 0;
 int countFrom = 0;
 int timers[4] = { 120, 180, 240, 360 };
 
-#define LIS_INT1_PIN GPIO_NUM_12
+#define LIS_INT1_PIN GPIO_NUM_9
 
 void enterSleepMode() {
   Serial.println("Going to sleep...");
@@ -19,18 +19,19 @@ void enterSleepMode() {
 
   vTaskDelay(pdMS_TO_TICKS(200));
 
-  // 1. Configure the pin
-  gpio_reset_pin(LIS_INT1_PIN);
   gpio_set_direction(LIS_INT1_PIN, GPIO_MODE_INPUT);
-  gpio_set_pull_mode(LIS_INT1_PIN, GPIO_PULLDOWN_ONLY);  // Ensure it's LOW when idle
+    
+    // 2. Enable internal pull-up (assuming you are triggering wake by pulling LOW)
+    gpio_set_pull_mode(LIS_INT1_PIN, GPIO_PULLUP_ONLY);
 
-  // 2. Enable GPIO wake-up (This works for any GPIO in Light Sleep)
-  gpio_wakeup_enable(LIS_INT1_PIN, GPIO_INTR_HIGH_LEVEL);
-  esp_sleep_enable_gpio_wakeup();
+    // 3. Configure the wake level (wake on LOW level)
+    gpio_wakeup_enable(LIS_INT1_PIN, GPIO_INTR_LOW_LEVEL);
 
-  // 3. Enter Light Sleep
-  // Execution will stop here, and resume at the next line upon wake-up
-  esp_light_sleep_start();
+    // 4. Enable the GPIO wakeup source globally
+    esp_sleep_enable_gpio_wakeup();
+
+    // 5. Enter light sleep
+    esp_light_sleep_start();
 
   // Code resumes here after the interrupt
   Serial.println("Woke up from Light Sleep!");
