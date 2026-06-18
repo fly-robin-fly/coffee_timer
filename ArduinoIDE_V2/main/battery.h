@@ -1,0 +1,1 @@
+float bat_getVoltage();
