@@ -1,5 +1,9 @@
 #include <Arduino.h>
 #include "types.h"
+#include "battery.h"
+#include "util.h"
+#include "qmi.h"
+#include "display.h"
 
 #define IMU_INT_PIN GPIO_NUM_4
 

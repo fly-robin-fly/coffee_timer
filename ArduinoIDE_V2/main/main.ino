@@ -5,6 +5,7 @@
 #include "util.h"
 #include "display.h"
 #include "qmi.h"
+#include <lvgl.h>
 
 
 int countFrom = 0;
@@ -34,7 +35,7 @@ void loop() {
 
     Orientation ori = util_calcOrientation(ax, ay, az);
     if (ori != lastOrientation) {
-      if (Orientation::SLEEP) util_deepSleep();
+      if (ori == Orientation::SLEEP) util_deepSleep();
       disp_rotateScreen(ori);
       lastOrientation = ori;
     }
