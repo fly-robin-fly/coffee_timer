@@ -1,4 +1,7 @@
 #pragma once
 
+namespace Battery {
 
-float bat_getVoltage();
+float getVoltage();
+
+}

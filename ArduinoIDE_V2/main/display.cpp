@@ -1,3 +1,4 @@
+#include "display.h"
 #include "consts.h"
 #include <lvgl.h>
 #include <Wire.h>
@@ -22,7 +23,7 @@ void disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p)
 }
 
 
-void disp_setup() {
+void Display::setup() {
   pinMode(TFT_BL_PIN, OUTPUT);
   digitalWrite(TFT_BL_PIN, HIGH);
   // Initialize TFT
@@ -48,15 +49,15 @@ void disp_setup() {
 }
 
 
-void disp_setBattery(int percentage) {
+void Display::setBattery(int percentage) {
   lv_label_set_text_fmt(ui_BatteryLabel, "%d%%", percentage);
 }
 
-void disp_shutOffBacklight() {
+void Display::shutOffBacklight() {
   digitalWrite(TFT_BL_PIN, LOW);
 }
 
-void disp_rotateScreen(Orientation ori) {
+void Display::rotateScreen(Orientation ori) {
   switch (ori) {
     case Orientation::DEG_0:
       lv_disp_set_rotation(NULL, LV_DISP_ROT_NONE);
@@ -75,7 +76,7 @@ void disp_rotateScreen(Orientation ori) {
   }
 }
 
-void disp_updateTimer(int remSeconds, int selSeconds) {
+void Display::updateTimer(int remSeconds, int selSeconds) {
   int minutes = (int)remSeconds / 60;
   int seconds = (int)remSeconds % 60;
   lv_label_set_text_fmt(ui_Countdown, "%02d:%02d", minutes, seconds);

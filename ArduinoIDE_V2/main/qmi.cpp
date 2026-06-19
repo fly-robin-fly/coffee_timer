@@ -1,9 +1,10 @@
+#include "qmi.h"
 #include "SensorQMI8658.hpp"  // By Lewis He
 #include "consts.h"
 
 SensorQMI8658 qmi;
 
-void qmi_setup() {
+void QMI::setup() {
   Wire.begin(I2C_SDA_PIN, I2C_SCL_PIN);
 
   // Initialize IMU
@@ -12,10 +13,10 @@ void qmi_setup() {
   }
 }
 
-void qmi_setupWakeup() {
+void QMI::setupWakeup() {
   qmi.configWakeOnMotion();
 }
 
-bool qmi_getAccelerometer(float &ax, float &ay, float &az) {
+bool QMI::getAccelerometer(float &ax, float &ay, float &az) {
   return qmi.getAccelerometer(ax, ay, az);
 }

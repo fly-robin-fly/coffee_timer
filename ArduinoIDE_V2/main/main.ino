@@ -19,9 +19,9 @@ Orientation lastOrientation = Orientation::SLEEP;
 void setup() {
   Serial.begin(115200);
 
-  qmi_setup();
-  disp_setup();
-  util_updateBattery();
+  QMI::setup();
+  Display::setup();
+  Util::updateBattery();
 }
 
 void loop() {
@@ -29,22 +29,22 @@ void loop() {
   delay(5);
 
   float ax, ay, az;
-  if (qmi_getAccelerometer(ax, ay, az)) {
+  if (QMI::getAccelerometer(ax, ay, az)) {
 
-    Orientation ori = util_calcOrientation(ax, ay, az);
+    Orientation ori = Util::calcOrientation(ax, ay, az);
     if (ori != lastOrientation) {
       lastOrientation = ori;
-      if (ori == Orientation::SLEEP) util_deepSleep();
-      remSeconds = util_getTimerByOrientation(ori);
+      if (ori == Orientation::SLEEP) Util::deepSleep();
+      remSeconds = Util::getTimerByOrientation(ori);
       selSeconds = remSeconds;
-      disp_rotateScreen(ori);
-      disp_updateTimer(remSeconds, selSeconds);
+      Display::rotateScreen(ori);
+      Display::updateTimer(remSeconds, selSeconds);
       lastTick = millis();
     }
   }
   if (remSeconds > 0 && millis() - lastTick >= 1000) {
     remSeconds--;
-    disp_updateTimer(remSeconds, selSeconds);
+    Display::updateTimer(remSeconds, selSeconds);
     lastTick = millis();
   }
 }

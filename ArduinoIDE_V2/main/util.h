@@ -1,8 +1,12 @@
 #pragma once
 #include "consts.h"
 
-int util_calcBattPercentage(float voltage);
-void util_updateBattery();
-Orientation util_calcOrientation(float ax, float ay, float az);
-void util_deepSleep();
-int util_getTimerByOrientation(Orientation ori);
+namespace Util {
+
+int calcBattPercentage(float voltage);
+void updateBattery();
+Orientation calcOrientation(float ax, float ay, float az);
+void deepSleep();
+int getTimerByOrientation(Orientation ori);
+
+}
