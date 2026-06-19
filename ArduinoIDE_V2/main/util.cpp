@@ -1,14 +1,9 @@
 #include <Arduino.h>
-#include "types.h"
+#include "consts.h"
 #include "battery.h"
 #include "util.h"
 #include "qmi.h"
 #include "display.h"
-
-#define IMU_INT_PIN GPIO_NUM_4
-
-#define BAT_FULL_VOLTAGE 4.2
-#define BAT_EMPTY_VOLTAGE 3.5
 
 int util_calcBattPercentage(float voltage) {
   return (int)map(voltage, BAT_EMPTY_VOLTAGE, BAT_FULL_VOLTAGE, 1, 100);
@@ -34,4 +29,12 @@ void util_deepSleep() {
   qmi_setupWakeup();
   esp_sleep_enable_ext0_wakeup(IMU_INT_PIN, 1);
   esp_deep_sleep_start();
+}
+
+int util_getTimerByOrientation(Orientation ori) {
+  if (ori == Orientation::DEG_0) return timers[0];
+  if (ori == Orientation::DEG_90) return timers[1];
+  if (ori == Orientation::DEG_180) return timers[2];
+  if (ori == Orientation::DEG_270) return timers[3];
+  return timers[0];
 }

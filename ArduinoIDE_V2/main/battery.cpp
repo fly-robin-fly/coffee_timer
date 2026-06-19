@@ -1,7 +1,5 @@
 #include <Arduino.h>
-
-#define BAT_ADC_PIN 1
-
+#include "consts.h"
 
 float bat_getVoltage() {
   analogReadResolution(12);

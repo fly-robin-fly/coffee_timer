@@ -1,10 +1,9 @@
-#include "types.h"
+#include "consts.h"
 #include <lvgl.h>
 #include <Wire.h>
 #include <TFT_eSPI.h>  // By Bodmer
 #include "src/ui.h"    // SquareLine Studio generated header
 
-#define TFT_BL_PIN 2
 
 TFT_eSPI tft = TFT_eSPI();
 
@@ -74,4 +73,12 @@ void disp_rotateScreen(Orientation ori) {
     default:
       lv_disp_set_rotation(NULL, LV_DISP_ROT_NONE);
   }
+}
+
+void disp_updateTimer(int remSeconds, int selSeconds) {
+  int minutes = (int)remSeconds / 60;
+  int seconds = (int)remSeconds % 60;
+  lv_label_set_text_fmt(ui_Countdown, "%02d:%02d", minutes, seconds);
+  int progress = 100 - ((remSeconds * 100) / selSeconds);
+  lv_arc_set_value(ui_Arc1, progress);
 }

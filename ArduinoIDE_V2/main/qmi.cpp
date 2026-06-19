@@ -1,6 +1,5 @@
 #include "SensorQMI8658.hpp"  // By Lewis He
-#define I2C_SDA_PIN 6
-#define I2C_SCL_PIN 7
+#include "consts.h"
 
 SensorQMI8658 qmi;
 
