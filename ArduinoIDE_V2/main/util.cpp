@@ -5,6 +5,7 @@
 #include "util.h"
 #include "qmi.h"
 #include "display.h"
+#include <driver/rtc_io.h>
 
 int Util::calcBattPercentage(float voltage) {
   return (int)map(voltage, BAT_EMPTY_VOLTAGE, BAT_FULL_VOLTAGE, 1, 100);
@@ -17,7 +18,7 @@ void Util::updateBattery() {
 }
 
 Orientation Util::calcOrientation(float ax, float ay, float az) {
-  //if (az < -0.8) return Orientation::SLEEP;
+  if (az < -0.8) return Orientation::SLEEP;
   if (ay > 0.8) return Orientation::DEG_270;
   if (ax > 0.8) return Orientation::DEG_180;
   if (ay < -0.8) return Orientation::DEG_90;
@@ -25,11 +26,22 @@ Orientation Util::calcOrientation(float ax, float ay, float az) {
   return Orientation::DEG_0;
 }
 
+
 void Util::deepSleep() {
   Serial.println("Face down: Entering Deep Sleep.");
   Display::shutOffBacklight();
+  
+  delay(1000); 
+
   QMI::setupWakeup();
-  esp_sleep_enable_ext0_wakeup(IMU_INT_PIN, 1);
+  
+  // Zwingt GPIO 4 im Deep Sleep in den Pulldown-Zustand
+  rtc_gpio_pullup_dis(IMU_INT_PIN);
+  rtc_gpio_pulldown_en(IMU_INT_PIN);
+  
+  // ext0 reicht für einzelne RTC-Pins vollkommen aus
+  esp_sleep_enable_ext0_wakeup(IMU_INT_PIN, 1); // 1 = Wakeup bei HIGH
+  
   esp_deep_sleep_start();
 }
 

@@ -22,7 +22,14 @@ void QMI::setup() {
 }
 
 void QMI::setupWakeup() {
-  qmi.configWakeOnMotion();
+  qmi.configWakeOnMotion(
+    200,                                   // WoMThreshold
+    SensorQMI8658::ACC_ODR_LOWPOWER_128Hz, // Energy efficient frequency
+    SensorQMI8658::INTERRUPT_PIN_1,        // Interrupt pin 1
+    0                                      // Normally 0
+  );
+  float dummyX, dummyY, dummyZ;
+  qmi.getAccelerometer(dummyX, dummyY, dummyZ);
 }
 
 bool QMI::getAccelerometer(float &ax, float &ay, float &az) {
