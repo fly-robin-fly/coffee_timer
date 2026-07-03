@@ -2,7 +2,7 @@
 #include "consts.h"
 #include <lvgl.h>
 #include <Wire.h>
-#include <TFT_eSPI.h>  // By Bodmer
+#include <TFT_eSPI.h>  // By Bodmer V2.5.43
 #include "src/ui.h"    // SquareLine Studio generated header
 
 
@@ -17,7 +17,7 @@ void disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p)
   uint32_t h = (area->y2 - area->y1 + 1);
   tft.startWrite();
   tft.setAddrWindow(area->x1, area->y1, w, h);
-  tft.pushColors((uint16_t *)&color_p->full, w * h, true);
+  tft.pushColors((uint16_t *)&color_p->full, w * h, false);
   tft.endWrite();
   lv_disp_flush_ready(disp);
 }
@@ -40,8 +40,8 @@ void Display::setup() {
   disp_drv.draw_buf = &draw_buf;
 
   // Enable LVGL Software Rotation
-  disp_drv.sw_rotate = 1;
-  disp_drv.rotated = LV_DISP_ROT_NONE;
+  // disp_drv.sw_rotate = 1;
+  // disp_drv.rotated = LV_DISP_ROT_NONE;
   lv_disp_drv_register(&disp_drv);
 
   // Initialize SquareLine UI
@@ -59,21 +59,14 @@ void Display::shutOffBacklight() {
 
 void Display::rotateScreen(Orientation ori) {
   switch (ori) {
-    case Orientation::DEG_0:
-      lv_disp_set_rotation(NULL, LV_DISP_ROT_NONE);
-      break;
-    case Orientation::DEG_90:
-      lv_disp_set_rotation(NULL, LV_DISP_ROT_90);
-      break;
-    case Orientation::DEG_180:
-      lv_disp_set_rotation(NULL, LV_DISP_ROT_180);
-      break;
-    case Orientation::DEG_270:
-      lv_disp_set_rotation(NULL, LV_DISP_ROT_270);
-      break;
-    default:
-      lv_disp_set_rotation(NULL, LV_DISP_ROT_NONE);
+    case Orientation::DEG_0:   tft.setRotation(0); break;
+    case Orientation::DEG_90:  tft.setRotation(1); break;
+    case Orientation::DEG_180: tft.setRotation(2); break;
+    case Orientation::DEG_270: tft.setRotation(3); break;
+    default: tft.setRotation(0);
   }
+  
+  lv_obj_invalidate(lv_scr_act());
 }
 
 void Display::updateTimer(int remSeconds, int selSeconds) {

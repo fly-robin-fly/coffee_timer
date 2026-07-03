@@ -17,11 +17,12 @@ void Util::updateBattery() {
 }
 
 Orientation Util::calcOrientation(float ax, float ay, float az) {
-  if (az < -0.8) return Orientation::SLEEP;
-  if (ay > 0.8) return Orientation::DEG_0;
-  if (ax > 0.8) return Orientation::DEG_90;
-  if (ay < -0.8) return Orientation::DEG_180;
-  if (ax < -0.8) return Orientation::DEG_270;
+  //if (az < -0.8) return Orientation::SLEEP;
+  if (ay > 0.8) return Orientation::DEG_270;
+  if (ax > 0.8) return Orientation::DEG_180;
+  if (ay < -0.8) return Orientation::DEG_90;
+  if (ax < -0.8) return Orientation::DEG_0;
+  return Orientation::DEG_0;
 }
 
 void Util::deepSleep() {

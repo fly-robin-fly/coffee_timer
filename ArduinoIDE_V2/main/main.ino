@@ -22,11 +22,13 @@ void setup() {
   QMI::setup();
   Display::setup();
   Util::updateBattery();
+  Display::updateTimer(60, 60);
 }
 
 void loop() {
   lv_timer_handler();  // Process LVGL tasks
   delay(5);
+  lv_tick_inc(5);
 
   float ax, ay, az;
   if (QMI::getAccelerometer(ax, ay, az)) {
