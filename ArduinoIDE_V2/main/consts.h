@@ -16,5 +16,6 @@ enum class Orientation {
   DEG_0,
   DEG_90,
   DEG_180,
-  DEG_270
+  DEG_270,
+  UNDEFINED
 };

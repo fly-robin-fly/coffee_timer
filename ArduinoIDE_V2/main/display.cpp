@@ -39,18 +39,28 @@ void Display::setup() {
   disp_drv.flush_cb = disp_flush;
   disp_drv.draw_buf = &draw_buf;
 
-  // Enable LVGL Software Rotation
-  // disp_drv.sw_rotate = 1;
-  // disp_drv.rotated = LV_DISP_ROT_NONE;
   lv_disp_drv_register(&disp_drv);
 
-  // Initialize SquareLine UI
   ui_init();
 }
 
 
-void Display::setBattery(int percentage) {
+void Display::updateBattery(int percentage) {
   lv_label_set_text_fmt(ui_BatteryLabel, "%d%%", percentage);
+  lv_bar_set_value(ui_Battery, percentage, LV_ANIM_OFF);
+  if (percentage > 30) {
+    lv_obj_set_style_bg_color(ui_Battery, lv_color_hex(0x66ff33), LV_PART_INDICATOR);
+    lv_obj_set_style_bg_color(ui_Battery, lv_color_hex(0x134d00), LV_PART_MAIN);
+  } else if (percentage > 20) {
+    lv_obj_set_style_bg_color(ui_Battery, lv_color_hex(0xffff00), LV_PART_INDICATOR);
+    lv_obj_set_style_bg_color(ui_Battery, lv_color_hex(0x4d4d00), LV_PART_MAIN);
+  } else if (percentage > 10) {
+    lv_obj_set_style_bg_color(ui_Battery, lv_color_hex(0xff9933), LV_PART_INDICATOR);
+    lv_obj_set_style_bg_color(ui_Battery, lv_color_hex(0x994d00), LV_PART_MAIN);
+  } else {
+    lv_obj_set_style_bg_color(ui_Battery, lv_color_hex(0xff0000), LV_PART_INDICATOR);
+    lv_obj_set_style_bg_color(ui_Battery, lv_color_hex(0x800000), LV_PART_MAIN);
+  }
 }
 
 void Display::shutOffBacklight() {
@@ -59,13 +69,13 @@ void Display::shutOffBacklight() {
 
 void Display::rotateScreen(Orientation ori) {
   switch (ori) {
-    case Orientation::DEG_0:   tft.setRotation(0); break;
-    case Orientation::DEG_90:  tft.setRotation(1); break;
+    case Orientation::DEG_0: tft.setRotation(0); break;
+    case Orientation::DEG_90: tft.setRotation(1); break;
     case Orientation::DEG_180: tft.setRotation(2); break;
     case Orientation::DEG_270: tft.setRotation(3); break;
     default: tft.setRotation(0);
   }
-  
+
   lv_obj_invalidate(lv_scr_act());
 }
 

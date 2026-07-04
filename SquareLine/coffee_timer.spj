@@ -52,8 +52,8 @@
                 "flags": 17,
                 "strtype": "OBJECT/Size",
                 "intarray": [
-                  230,
-                  230
+                  225,
+                  225
                 ],
                 "InheritedType": 7
               },
@@ -242,9 +242,9 @@
                         "flags": 4096,
                         "strtype": "_style/Shadow_Color",
                         "intarray": [
-                          150,
-                          150,
-                          150,
+                          93,
+                          93,
+                          93,
                           255
                         ],
                         "InheritedType": 7
@@ -254,8 +254,8 @@
                         "flags": 16,
                         "strtype": "_style/Shadow_params",
                         "intarray": [
-                          10,
-                          3
+                          3,
+                          1
                         ],
                         "InheritedType": 7
                       }
@@ -629,7 +629,7 @@
                       {
                         "nid": 10450,
                         "strtype": "_style/Text_Font",
-                        "strval": "montserrat_12",
+                        "strval": "montserrat_14",
                         "InheritedType": 3
                       }
                     ],
@@ -958,7 +958,7 @@
     "separate_screen_save": false,
     "hierarchy_state_save": false,
     "reverse_event_order": false,
-    "backup_cnt": 16,
+    "backup_cnt": 17,
     "autosave_cnt": 0,
     "group_color_cnt": 1,
     "imagebytearrayprefix": "",

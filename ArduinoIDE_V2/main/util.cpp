@@ -14,7 +14,7 @@ int Util::calcBattPercentage(float voltage) {
 void Util::updateBattery() {
   float voltage = Battery::getVoltage();
   int percentage = Util::calcBattPercentage(voltage);
-  Display::setBattery(percentage);
+  Display::updateBattery(percentage);
 }
 
 Orientation Util::calcOrientation(float ax, float ay, float az) {
@@ -30,18 +30,18 @@ Orientation Util::calcOrientation(float ax, float ay, float az) {
 void Util::deepSleep() {
   Serial.println("Face down: Entering Deep Sleep.");
   Display::shutOffBacklight();
-  
-  delay(1000); 
+
+  delay(1000);
 
   QMI::setupWakeup();
-  
+
   // Zwingt GPIO 4 im Deep Sleep in den Pulldown-Zustand
   rtc_gpio_pullup_dis(IMU_INT_PIN);
   rtc_gpio_pulldown_en(IMU_INT_PIN);
-  
+
   // ext0 reicht für einzelne RTC-Pins vollkommen aus
-  esp_sleep_enable_ext0_wakeup(IMU_INT_PIN, 1); // 1 = Wakeup bei HIGH
-  
+  esp_sleep_enable_ext0_wakeup(IMU_INT_PIN, 1);  // 1 = Wakeup bei HIGH
+
   esp_deep_sleep_start();
 }
 

@@ -13,29 +13,36 @@ int selSeconds = 0;  // selected  timer seconds
 long lastTick = 0;   // last count tick timestamp
 
 
-Orientation lastOrientation = Orientation::SLEEP;
+Util::OrientationDebouncer oriDebouncer(300);
 
 
 void setup() {
   Serial.begin(115200);
-
   QMI::setup();
   Display::setup();
   Util::updateBattery();
   Display::updateTimer(60, 60);
+
+  while (true) {
+    for (int i = 100; i >= 0; i--) {
+      Display::updateBattery(i);
+      lv_timer_handler();
+      delay(100);
+      lv_tick_inc(100);
+    }
+  }
 }
 
 void loop() {
-  lv_timer_handler();  // Process LVGL tasks
+  lv_timer_handler();
   delay(5);
   lv_tick_inc(5);
 
   float ax, ay, az;
   if (QMI::getAccelerometer(ax, ay, az)) {
-
-    Orientation ori = Util::calcOrientation(ax, ay, az);
-    if (ori != lastOrientation) {
-      lastOrientation = ori;
+    Orientation currentOri = Util::calcOrientation(ax, ay, az);
+    if (oriDebouncer.update(currentOri)) {
+      Orientation ori = oriDebouncer.getState();
       if (ori == Orientation::SLEEP) Util::deepSleep();
       remSeconds = Util::getTimerByOrientation(ori);
       selSeconds = remSeconds;

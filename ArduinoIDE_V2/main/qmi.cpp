@@ -13,20 +13,19 @@ void QMI::setup() {
   }
 
   qmi.configAccelerometer(
-      SensorQMI8658::ACC_RANGE_4G,      
-      SensorQMI8658::ACC_ODR_1000Hz,    
-      SensorQMI8658::LPF_MODE_0         
-  );
+    SensorQMI8658::ACC_RANGE_4G,
+    SensorQMI8658::ACC_ODR_1000Hz,
+    SensorQMI8658::LPF_MODE_0);
 
   qmi.enableAccelerometer();
 }
 
 void QMI::setupWakeup() {
   qmi.configWakeOnMotion(
-    200,                                   // WoMThreshold
-    SensorQMI8658::ACC_ODR_LOWPOWER_128Hz, // Energy efficient frequency
-    SensorQMI8658::INTERRUPT_PIN_1,        // Interrupt pin 1
-    0                                      // Normally 0
+    200,                                    // WoMThreshold
+    SensorQMI8658::ACC_ODR_LOWPOWER_128Hz,  // Energy efficient frequency
+    SensorQMI8658::INTERRUPT_PIN_1,         // Interrupt pin 1
+    0                                       // Normally 0
   );
   float dummyX, dummyY, dummyZ;
   qmi.getAccelerometer(dummyX, dummyY, dummyZ);

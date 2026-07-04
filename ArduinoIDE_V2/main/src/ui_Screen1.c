@@ -20,8 +20,8 @@ void ui_Screen1_screen_init(void)
     lv_obj_clear_flag(ui_Screen1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_Arc1 = lv_arc_create(ui_Screen1);
-    lv_obj_set_width(ui_Arc1, 230);
-    lv_obj_set_height(ui_Arc1, 230);
+    lv_obj_set_width(ui_Arc1, 225);
+    lv_obj_set_height(ui_Arc1, 225);
     lv_obj_set_align(ui_Arc1, LV_ALIGN_CENTER);
     lv_obj_clear_flag(ui_Arc1, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE |
                       LV_OBJ_FLAG_GESTURE_BUBBLE | LV_OBJ_FLAG_SNAPPABLE);     /// Flags
@@ -30,10 +30,10 @@ void ui_Screen1_screen_init(void)
 
     lv_obj_set_style_arc_width(ui_Arc1, 15, LV_PART_INDICATOR | LV_STATE_DEFAULT);
 
-    lv_obj_set_style_shadow_color(ui_Arc1, lv_color_hex(0x969696), LV_PART_KNOB | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_color(ui_Arc1, lv_color_hex(0x5D5D5D), LV_PART_KNOB | LV_STATE_DEFAULT);
     lv_obj_set_style_shadow_opa(ui_Arc1, 255, LV_PART_KNOB | LV_STATE_DEFAULT);
-    lv_obj_set_style_shadow_width(ui_Arc1, 10, LV_PART_KNOB | LV_STATE_DEFAULT);
-    lv_obj_set_style_shadow_spread(ui_Arc1, 3, LV_PART_KNOB | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_width(ui_Arc1, 3, LV_PART_KNOB | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_spread(ui_Arc1, 1, LV_PART_KNOB | LV_STATE_DEFAULT);
 
     ui_Battery = lv_bar_create(ui_Screen1);
     lv_bar_set_value(ui_Battery, 25, LV_ANIM_OFF);
