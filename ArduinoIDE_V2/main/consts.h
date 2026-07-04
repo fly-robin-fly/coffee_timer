@@ -5,11 +5,15 @@
 #define IMU_INT_PIN GPIO_NUM_4
 #define I2C_SDA_PIN 6
 #define I2C_SCL_PIN 7
+#define BEEPER_PIN 15
 
 #define BAT_FULL_VOLTAGE 4.2
 #define BAT_EMPTY_VOLTAGE 3.5
 
+#define ORI_DEBOUNCE_DELAY 300
+
 constexpr int timers[4] = { 120, 180, 240, 360 };
+constexpr int beepDelays[4] = { 200, 200, 200, 1000 };
 
 enum class Orientation {
   SLEEP,

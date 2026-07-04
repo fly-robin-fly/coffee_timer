@@ -52,3 +52,20 @@ int Util::getTimerByOrientation(Orientation ori) {
   if (ori == Orientation::DEG_270) return timers[3];
   return timers[0];
 }
+
+unsigned long lastOriChangeTime = 0;
+Orientation debouncedState = Orientation::UNDEFINED;
+
+bool Util::updateOriDebounce(Orientation rawState) {
+  if (rawState == debouncedState) {
+    lastOriChangeTime = millis();
+  } else if ((millis() - lastOriChangeTime) >= ORI_DEBOUNCE_DELAY) {
+    debouncedState = rawState;
+    return true;
+  }
+  return false;
+}
+
+Orientation Util::getDebouncedOriState() {
+  return debouncedState;
+}
