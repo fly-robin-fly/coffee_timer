@@ -7,7 +7,6 @@ int arrayLength = sizeof(beepDelays) / sizeof(beepDelays[0]);
 int beepIndex = 0;
 
 void Beeper::beep(unsigned int duration) {
-  Serial.println("Beep!");
   digitalWrite(BEEPER_PIN, HIGH);
   delay(duration);
   digitalWrite(BEEPER_PIN, LOW);
@@ -15,6 +14,7 @@ void Beeper::beep(unsigned int duration) {
 
 void Beeper::setup() {
   pinMode(BEEPER_PIN, OUTPUT);
+  digitalWrite(BEEPER_PIN, LOW);
 }
 
 void Beeper::cycleBeeper() {

@@ -43,6 +43,7 @@ void loop() {
       lastTick = millis();
     }
   }
+
   if (remSeconds > 0 && millis() - lastTick >= 1000) {
     remSeconds--;
     Display::updateTimer(remSeconds, selSeconds);
@@ -50,6 +51,7 @@ void loop() {
     Util::updateBattery();
     if (remSeconds == 0) startedBeeping = millis();
   }
+
   if (remSeconds == 0) Beeper::cycleBeeper();
   if (remSeconds == 0 && millis() - startedBeeping >= 1000 * 30) Util::deepSleep();
 }
