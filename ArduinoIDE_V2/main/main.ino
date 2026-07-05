@@ -51,5 +51,5 @@ void loop() {
     if (remSeconds == 0) startedBeeping = millis();
   }
   if (remSeconds == 0) Beeper::cycleBeeper();
-  if (remSeconds == 0 && millis() - startedBeeping >= 1000 * 60) Util::deepSleep();
+  if (remSeconds == 0 && millis() - startedBeeping >= 1000 * 30) Util::deepSleep();
 }

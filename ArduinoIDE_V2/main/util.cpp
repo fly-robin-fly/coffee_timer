@@ -28,7 +28,7 @@ Orientation Util::calcOrientation(float ax, float ay, float az) {
 
 
 void Util::deepSleep() {
-  Serial.println("Face down: Entering Deep Sleep.");
+  Serial.println("Face up: Entering Deep Sleep.");
   Display::shutOffBacklight();
 
   delay(1000);
