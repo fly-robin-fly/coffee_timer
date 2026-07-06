@@ -86,3 +86,15 @@ void Display::updateTimer(int remSeconds, int selSeconds) {
   int progress = 100 - ((remSeconds * 100) / selSeconds);
   lv_arc_set_value(ui_Arc1, progress);
 }
+
+unsigned long lastChange = 0;
+bool colorState = false;
+
+void Display::cycleTimerFinish() {
+  if (millis() - lastChange >= 500) {
+    if (colorState) lv_obj_set_style_arc_color(ui_Arc1, lv_color_hex(0x2095F6), LV_PART_INDICATOR);
+    else lv_obj_set_style_arc_color(ui_Arc1, lv_color_hex(0xf55442), LV_PART_INDICATOR);
+    colorState = !colorState;
+    lastChange = millis();
+  }
+}

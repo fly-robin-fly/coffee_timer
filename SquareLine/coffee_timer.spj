@@ -215,6 +215,18 @@
                     "strval": "DEFAULT",
                     "childs": [
                       {
+                        "nid": 10310,
+                        "flags": 4096,
+                        "strtype": "_style/Arc_Color",
+                        "intarray": [
+                          32,
+                          149,
+                          246,
+                          255
+                        ],
+                        "InheritedType": 7
+                      },
+                      {
                         "nid": 10320,
                         "strtype": "_style/Arc_Width",
                         "integer": 15,
@@ -958,7 +970,7 @@
     "separate_screen_save": false,
     "hierarchy_state_save": false,
     "reverse_event_order": false,
-    "backup_cnt": 17,
+    "backup_cnt": 18,
     "autosave_cnt": 0,
     "group_color_cnt": 1,
     "imagebytearrayprefix": "",

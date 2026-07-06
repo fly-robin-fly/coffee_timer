@@ -8,4 +8,5 @@ void updateBattery(int percentage);
 void shutOffBacklight();
 void rotateScreen(Orientation ori);
 void updateTimer(int seconds, int selSeconds);
+void cycleTimerFinish();
 }

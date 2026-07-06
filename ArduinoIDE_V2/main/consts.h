@@ -12,7 +12,7 @@
 
 #define ORI_DEBOUNCE_DELAY 300
 
-constexpr int timers[4] = { 120, 180, 240, 10 };
+constexpr int timers[4] = { 120, 180, 240, 360 };
 constexpr int beepDelays[4] = { 200, 200, 1000 };
 
 enum class Orientation {
