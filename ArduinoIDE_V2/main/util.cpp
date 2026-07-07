@@ -29,27 +29,38 @@ Orientation Util::calcOrientation(float ax, float ay, float az) {
 
 void Util::deepSleep() {
   Serial.println("Face up: Entering Deep Sleep.");
-  Display::shutOffBacklight();
+  Display::deepSleep();
 
   delay(1000);
 
   QMI::setupWakeup();
 
-  // Zwingt GPIO 4 im Deep Sleep in den Pulldown-Zustand
+  // Float I2C lines to prevent parasitic draw
+  pinMode(I2C_SDA_PIN, INPUT);
+  pinMode(I2C_SCL_PIN, INPUT);
+
   rtc_gpio_pullup_dis(IMU_INT_PIN);
   rtc_gpio_pulldown_en(IMU_INT_PIN);
 
-  // ext0 reicht für einzelne RTC-Pins vollkommen aus
-  esp_sleep_enable_ext0_wakeup(IMU_INT_PIN, 1);  // 1 = Wakeup bei HIGH
+  esp_sleep_enable_ext0_wakeup(IMU_INT_PIN, 1);  // 1 = Wakeup at HIGH
+
+  // --- Beeper Hold Logic ---
+  // Ensure the pin is explicitly HIGH (OFF) before sleeping
+  digitalWrite(BEEPER_PIN, HIGH);
+  
+  // Lock the pin state in the RTC domain
+  gpio_hold_en((gpio_num_t)BEEPER_PIN);
+  gpio_deep_sleep_hold_en();
+  // -------------------------
 
   esp_deep_sleep_start();
 }
 
 int Util::getTimerByOrientation(Orientation ori) {
-  if (ori == Orientation::DEG_0) return timers[0];
-  if (ori == Orientation::DEG_90) return timers[1];
-  if (ori == Orientation::DEG_180) return timers[2];
-  if (ori == Orientation::DEG_270) return timers[3];
+  if (ori == Orientation::DEG_0) return timers[3];
+  if (ori == Orientation::DEG_90) return timers[0];
+  if (ori == Orientation::DEG_180) return timers[1];
+  if (ori == Orientation::DEG_270) return timers[2];
   return timers[0];
 }
 

@@ -16,19 +16,19 @@ unsigned long startedBeeping = 0;
 
 
 void setup() {
+  setCpuFrequencyMhz(80);  // reducing CPU clock to 80MHz
+
   Serial.begin(115200);
   QMI::setup();
   Display::setup();
   Beeper::setup();
   Util::updateBattery();
-
-  Beeper::beep(20);
 }
 
 void loop() {
   lv_timer_handler();
-  delay(5);
-  lv_tick_inc(5);
+  delay(20);
+  lv_tick_inc(20);
 
   float ax, ay, az;
   if (QMI::getAccelerometer(ax, ay, az)) {

@@ -3,7 +3,7 @@
 
 namespace Beeper {
 
-void beep(unsigned int duration);
 void setup();
+void beep(unsigned int frequency, unsigned int duration);
 void cycleBeeper();
 }
