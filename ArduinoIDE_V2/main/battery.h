@@ -3,5 +3,6 @@
 namespace Battery {
 
 float getVoltage();
+void cycleBatteryUpdate();
 
 }
