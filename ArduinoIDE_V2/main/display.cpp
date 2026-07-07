@@ -78,7 +78,7 @@ void Display::rotateScreen(Orientation ori) {
     case Orientation::DEG_270: tft.setRotation(3); break;
     default: tft.setRotation(0);
   }
-
+  lv_obj_set_style_arc_color(ui_Arc1, lv_color_hex(0x2095F6), LV_PART_INDICATOR); // reset color to normal
   lv_obj_invalidate(lv_scr_act());
 }
 
