@@ -7,7 +7,14 @@ float Battery::getVoltage() {
   analogReadResolution(12);
   int adValue = analogRead(BAT_ADC_PIN);
   float batVoltage = (3.3 / 4096.0) * 3.0 * adValue;
+  Serial.print("Battery voltage: ");
+  Serial.println(batVoltage);
   return batVoltage;
+}
+
+void Battery::sleepIfEmpty() {
+  float batVoltage = Battery::getVoltage();
+  if(batVoltage <= BAT_EMPTY_VOLTAGE) Util::deepSleep();
 }
 
 
@@ -17,5 +24,6 @@ void Battery::cycleBatteryUpdate() {
   if (millis() - lastBatteryUpdate >= 5000) {
     Util::updateBattery();
     lastBatteryUpdate = millis();
+    sleepIfEmpty();
   }
 }

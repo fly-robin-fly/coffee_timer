@@ -26,7 +26,7 @@ void Util::updateBattery() {
 }
 
 Orientation Util::calcOrientation(float ax, float ay, float az) {
-  if (az < -0.8) return Orientation::SLEEP;
+  if (az < -0.8 || az > 0.8) return Orientation::SLEEP;
   if (ay > 0.8) return Orientation::DEG_270;
   if (ax > 0.8) return Orientation::DEG_180;
   if (ay < -0.8) return Orientation::DEG_90;
@@ -36,7 +36,7 @@ Orientation Util::calcOrientation(float ax, float ay, float az) {
 
 
 void Util::deepSleep() {
-  Serial.println("Face up: Entering Deep Sleep.");
+  Serial.println("Face up or down: Entering Deep Sleep.");
   Display::deepSleep();
 
   delay(1000);
