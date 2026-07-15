@@ -7,7 +7,7 @@
 #define I2C_SCL_PIN 7
 #define BEEPER_PIN 15
 
-#define BAT_FULL_VOLTAGE 4.2
+#define BAT_FULL_VOLTAGE 4.0
 #define BAT_EMPTY_VOLTAGE 3.5
 
 #define ORI_DEBOUNCE_DELAY 300
