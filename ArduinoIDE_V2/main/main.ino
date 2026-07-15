@@ -17,6 +17,8 @@ unsigned long startedBeeping = 0;
 
 void setup() {
   setCpuFrequencyMhz(80);  // reducing CPU clock to 80MHz
+  Orientation ori = Util::getDebouncedOriState();
+  if (ori == Orientation::SLEEP) Util::deepSleep();
 
   Serial.begin(115200);
   QMI::setup();
