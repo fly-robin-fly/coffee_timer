@@ -20,7 +20,7 @@ void setup() {
   Orientation ori = Util::getDebouncedOriState();
   if (ori == Orientation::SLEEP) Util::deepSleep();
 
-  Serial.begin(115200);
+  //Serial.begin(115200);
   QMI::setup();
   Display::setup();
   Beeper::setup();

@@ -12,7 +12,7 @@
 
 #define ORI_DEBOUNCE_DELAY 300
 
-constexpr int timers[4] = { 120, 180, 5, 360 };
+constexpr int timers[4] = { 120, 180, 240, 360 };
 constexpr int beepDurations[3] = { 100, 100, 80 };
 constexpr int beepFrequencies[3] = { 1500, 1000, 2000 };
 constexpr int beepDelays[3] = { 800, 20, 20 };
