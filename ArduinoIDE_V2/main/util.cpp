@@ -8,12 +8,11 @@
 #include <driver/rtc_io.h>
 
 int Util::calcBattPercentage(float voltage) {
-  // 1. Constrain bounds
+  // Constrain bounds
   if (voltage <= BAT_EMPTY_VOLTAGE) return 1;
   if (voltage >= BAT_FULL_VOLTAGE) return 100;
 
-  // 2. Linear interpolation for floats
-  // Formula: ((x - in_min) / (in_max - in_min)) * (out_max - out_min) + out_min
+  //  Linear interpolation for floats
   float percentage = ((voltage - BAT_EMPTY_VOLTAGE) / (BAT_FULL_VOLTAGE - BAT_EMPTY_VOLTAGE)) * 99.0f + 1.0f;
   
   return (int)percentage;

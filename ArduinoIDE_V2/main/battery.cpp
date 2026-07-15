@@ -3,11 +3,13 @@
 #include "consts.h"
 #include "util.h"
 
+
 float Battery::getVoltage() {
-  analogReadResolution(12);
-  int adValue = analogRead(BAT_ADC_PIN);
-  float batVoltage = (3.3 / 4096.0) * 3.0 * adValue;
-  return batVoltage;
+  // Uses factory eFuse calibration for precise readings
+  uint32_t adc_mV = analogReadMilliVolts(BAT_ADC_PIN); 
+  
+  // Multiply by 3.0 to account for Waveshare's 200k/100k voltage divider
+  return (adc_mV * 3.0f) / 1000.0f; 
 }
 
 void Battery::sleepIfEmpty() {
