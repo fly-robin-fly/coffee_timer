@@ -9,7 +9,7 @@ float Battery::getVoltage() {
   uint32_t adc_mV = analogReadMilliVolts(BAT_ADC_PIN); 
   
   // Multiply by 3.0 to account for Waveshare's 200k/100k voltage divider
-  return (adc_mV * 3.0f) / 1000.0f; 
+  return (adc_mV * 3.0f) / 1000.0f;
 }
 
 void Battery::sleepIfEmpty() {

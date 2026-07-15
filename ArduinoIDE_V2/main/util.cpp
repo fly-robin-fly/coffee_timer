@@ -6,6 +6,10 @@
 #include "qmi.h"
 #include "display.h"
 #include <driver/rtc_io.h>
+#include "vFilter.h"
+
+VoltageSmoother<10> vFilter;
+
 
 int Util::calcBattPercentage(float voltage) {
   // Constrain bounds
@@ -20,7 +24,9 @@ int Util::calcBattPercentage(float voltage) {
 
 void Util::updateBattery() {
   float voltage = Battery::getVoltage();
-  int percentage = Util::calcBattPercentage(voltage);
+  vFilter.add(voltage);
+  float smoothedVoltage = vFilter.getAverage();
+  int percentage = Util::calcBattPercentage(smoothedVoltage);
   Display::updateBattery(percentage);
 }
 
