@@ -94,7 +94,7 @@ unsigned long lastFinishChange = 0;
 bool finishColorState = false;
 
 void Display::cycleTimerFinish() {
-  if (millis() - lastFinishChange >= 750) {
+  if (millis() - lastFinishChange >= 800 ) {
     if (finishColorState) lv_obj_set_style_arc_color(ui_Arc1, lv_color_hex(0x2095F6), LV_PART_INDICATOR);
     else lv_obj_set_style_arc_color(ui_Arc1, lv_color_hex(0xf55442), LV_PART_INDICATOR);
     finishColorState = !finishColorState;

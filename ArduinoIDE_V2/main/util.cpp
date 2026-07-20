@@ -7,6 +7,7 @@
 #include "display.h"
 #include <driver/rtc_io.h>
 #include "vFilter.h"
+#include "beeper.h"
 
 VoltageSmoother<10> vFilter;
 
@@ -18,7 +19,7 @@ int Util::calcBattPercentage(float voltage) {
 
   //  Linear interpolation for floats
   float percentage = ((voltage - BAT_EMPTY_VOLTAGE) / (BAT_FULL_VOLTAGE - BAT_EMPTY_VOLTAGE)) * 99.0f + 1.0f;
-  
+
   return (int)percentage;
 }
 
@@ -40,11 +41,12 @@ Orientation Util::calcOrientation(float ax, float ay, float az) {
 }
 
 
-void Util::deepSleep() {
-  Serial.println("Face up or down: Entering Deep Sleep.");
+void Util::deepSleep(bool playSound) {
   Display::deepSleep();
 
   delay(1000);
+
+  if (playSound) Beeper::playShutdown();
 
   QMI::setupWakeup();
 
@@ -60,7 +62,7 @@ void Util::deepSleep() {
   // --- Beeper Hold Logic ---
   // Ensure the pin is explicitly HIGH (OFF) before sleeping
   digitalWrite(BEEPER_PIN, HIGH);
-  
+
   // Lock the pin state in the RTC domain
   gpio_hold_en((gpio_num_t)BEEPER_PIN);
   gpio_deep_sleep_hold_en();

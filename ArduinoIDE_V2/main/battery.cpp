@@ -14,7 +14,7 @@ float Battery::getVoltage() {
 
 void Battery::sleepIfEmpty() {
   float batVoltage = Battery::getVoltage();
-  if(batVoltage <= BAT_EMPTY_VOLTAGE) Util::deepSleep();
+  if(batVoltage <= BAT_EMPTY_VOLTAGE) Util::deepSleep(false);
 }
 
 

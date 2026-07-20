@@ -7,7 +7,7 @@ namespace Util {
 int calcBattPercentage(float voltage);
 void updateBattery();
 Orientation calcOrientation(float ax, float ay, float az);
-void deepSleep();
+void deepSleep(bool playSound);
 int getTimerByOrientation(Orientation ori);
 bool updateOriDebounce(Orientation rawState);
 Orientation getDebouncedOriState();

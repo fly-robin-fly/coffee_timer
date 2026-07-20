@@ -18,7 +18,7 @@ unsigned long startedBeeping = 0;
 void setup() {
   setCpuFrequencyMhz(80);  // reducing CPU clock to 80MHz
   Orientation ori = Util::getDebouncedOriState();
-  if (ori == Orientation::SLEEP) Util::deepSleep();
+  if (ori == Orientation::SLEEP) Util::deepSleep(false);
 
   //Serial.begin(115200);
   QMI::setup();
@@ -37,7 +37,7 @@ void loop() {
     Orientation currentOri = Util::calcOrientation(ax, ay, az);
     if (Util::updateOriDebounce(currentOri)) {
       Orientation ori = Util::getDebouncedOriState();
-      if (ori == Orientation::SLEEP) Util::deepSleep();
+      if (ori == Orientation::SLEEP) Util::deepSleep(true);
       remSeconds = Util::getTimerByOrientation(ori);
       selSeconds = remSeconds;
       Display::rotateScreen(ori);
@@ -54,9 +54,9 @@ void loop() {
   }
 
   if (remSeconds == 0) {
-    Beeper::cycleBeeper();
-    Display::cycleTimerFinish();
-    if(millis() - startedBeeping >= 1000 * 30) Util::deepSleep();
+    bool waitingLong = Beeper::cycleBeeper();
+    if(waitingLong) Display::cycleTimerFinish();
+    if(millis() - startedBeeping >= 1000 * 30) Util::deepSleep(true);
   }
   Battery::cycleBatteryUpdate();
 }
