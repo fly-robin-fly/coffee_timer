@@ -31,17 +31,38 @@ void Util::updateBattery() {
   Display::updateBattery(percentage);
 }
 
-Orientation Util::calcOrientation(float ax, float ay, float az) {
-  if (fabsf(az) > 0.8f) return Orientation::SLEEP;
-  // Use the dominant axis so a spike on one axis can't override the other
-  if (fabsf(ax) > fabsf(ay)) {
-    if (ax > 0.8f) return Orientation::DEG_180;
-    if (ax < -0.8f) return Orientation::DEG_0;
-  } else {
-    if (ay > 0.8f) return Orientation::DEG_270;
-    if (ay < -0.8f) return Orientation::DEG_90;
+Orientation debouncedState = Orientation::UNDEFINED;
+Orientation candidateState = Orientation::UNDEFINED;
+unsigned long candidateSince = 0;
+
+// Gravity component along the axis that points down in the given orientation
+static float downComponent(Orientation ori, float ax, float ay, float az) {
+  switch (ori) {
+    case Orientation::DEG_0: return -ax;
+    case Orientation::DEG_90: return -ay;
+    case Orientation::DEG_180: return ax;
+    case Orientation::DEG_270: return ay;
+    case Orientation::SLEEP: return fabsf(az);
+    default: return 0.0f;
   }
-  return Orientation::UNDEFINED;  // ambiguous (tilted, shaken) -> ignored by debounce
+}
+
+Orientation Util::calcOrientation(float ax, float ay, float az) {
+  // Hysteresis: keep the current candidate while its axis is still clearly loaded
+  if (downComponent(candidateState, ax, ay, az) > ORI_HOLD_THRESHOLD) return candidateState;
+
+  // Use the dominant axis so a spike on one axis can't override another
+  float x = fabsf(ax), y = fabsf(ay), z = fabsf(az);
+  if (z > x && z > y) {
+    if (z > ORI_ENTER_THRESHOLD) return Orientation::SLEEP;
+  } else if (x > y) {
+    if (ax > ORI_ENTER_THRESHOLD) return Orientation::DEG_180;
+    if (ax < -ORI_ENTER_THRESHOLD) return Orientation::DEG_0;
+  } else {
+    if (ay > ORI_ENTER_THRESHOLD) return Orientation::DEG_270;
+    if (ay < -ORI_ENTER_THRESHOLD) return Orientation::DEG_90;
+  }
+  return Orientation::UNDEFINED;  // ambiguous (strongly tilted or moving)
 }
 
 
@@ -83,12 +104,9 @@ int Util::getTimerByOrientation(Orientation ori) {
   return timers[0];
 }
 
-Orientation debouncedState = Orientation::UNDEFINED;
-Orientation candidateState = Orientation::UNDEFINED;
-unsigned long candidateSince = 0;
-
 bool Util::updateOriDebounce(Orientation rawState) {
-  // A new orientation must be measured continuously for ORI_DEBOUNCE_DELAY
+  // A new orientation must be measured continuously for ORI_DEBOUNCE_DELAY,
+  // any other reading (including UNDEFINED) restarts the wait
   if (rawState != candidateState) {
     candidateState = rawState;
     candidateSince = millis();

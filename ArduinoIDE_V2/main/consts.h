@@ -11,6 +11,8 @@
 #define BAT_EMPTY_VOLTAGE 3.5
 
 #define ORI_DEBOUNCE_DELAY 300
+#define ORI_ENTER_THRESHOLD 0.8f  // g needed on an axis to detect a new orientation
+#define ORI_HOLD_THRESHOLD 0.6f   // g needed to keep the current orientation (hysteresis)
 
 constexpr int timers[4] = { 120, 180, 240, 360 };
 constexpr int beepDurations[3] = { 120, 120, 100 };

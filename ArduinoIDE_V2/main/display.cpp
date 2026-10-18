@@ -11,6 +11,7 @@ TFT_eSPI tft = TFT_eSPI();
 static lv_disp_draw_buf_t draw_buf;
 static lv_color_t buf[240 * 20];
 lv_disp_drv_t disp_drv;
+bool displayInitialized = false;
 
 void disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p) {
   uint32_t w = (area->x2 - area->x1 + 1);
@@ -42,6 +43,7 @@ void Display::setup() {
   lv_disp_drv_register(&disp_drv);
 
   ui_init();
+  displayInitialized = true;
 }
 
 
@@ -64,6 +66,8 @@ void Display::updateBattery(int percentage) {
 }
 
 void Display::deepSleep() {
+  // Not started yet (early re-sleep after wake): panel is still asleep from last time
+  if (!displayInitialized) return;
   digitalWrite(TFT_BL_PIN, LOW);
   // Send GC9A01 Sleep In command
   tft.writecommand(0x10); 

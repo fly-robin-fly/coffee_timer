@@ -61,10 +61,12 @@ void loop() {
     if (remSeconds == 0) startedBeeping = millis();
   }
 
-  if (remSeconds == 0) {
+  if (remSeconds == 0 && selSeconds > 0) {
     bool waitingLong = Beeper::cycleBeeper();
     if (waitingLong) Display::cycleTimerFinish();
     if (millis() - startedBeeping >= 1000 * 30) Util::deepSleep(true);
   }
+  // No orientation detected since boot: sleep silently
+  if (selSeconds == 0 && millis() >= 1000 * 30) Util::deepSleep(false);
   Battery::cycleBatteryUpdate();
 }
