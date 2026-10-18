@@ -32,12 +32,16 @@ void Util::updateBattery() {
 }
 
 Orientation Util::calcOrientation(float ax, float ay, float az) {
-  if (az < -0.8 || az > 0.8) return Orientation::SLEEP;
-  if (ay > 0.8) return Orientation::DEG_270;
-  if (ax > 0.8) return Orientation::DEG_180;
-  if (ay < -0.8) return Orientation::DEG_90;
-  if (ax < -0.8) return Orientation::DEG_0;
-  return Orientation::DEG_0;
+  if (fabsf(az) > 0.8f) return Orientation::SLEEP;
+  // Use the dominant axis so a spike on one axis can't override the other
+  if (fabsf(ax) > fabsf(ay)) {
+    if (ax > 0.8f) return Orientation::DEG_180;
+    if (ax < -0.8f) return Orientation::DEG_0;
+  } else {
+    if (ay > 0.8f) return Orientation::DEG_270;
+    if (ay < -0.8f) return Orientation::DEG_90;
+  }
+  return Orientation::UNDEFINED;  // ambiguous (tilted, shaken) -> ignored by debounce
 }
 
 
@@ -79,14 +83,20 @@ int Util::getTimerByOrientation(Orientation ori) {
   return timers[0];
 }
 
-unsigned long lastOriChangeTime = 0;
 Orientation debouncedState = Orientation::UNDEFINED;
+Orientation candidateState = Orientation::UNDEFINED;
+unsigned long candidateSince = 0;
 
 bool Util::updateOriDebounce(Orientation rawState) {
-  if (rawState == debouncedState) {
-    lastOriChangeTime = millis();
-  } else if ((millis() - lastOriChangeTime) >= ORI_DEBOUNCE_DELAY) {
-    debouncedState = rawState;
+  // A new orientation must be measured continuously for ORI_DEBOUNCE_DELAY
+  if (rawState != candidateState) {
+    candidateState = rawState;
+    candidateSince = millis();
+    return false;
+  }
+  if (candidateState != Orientation::UNDEFINED && candidateState != debouncedState
+      && millis() - candidateSince >= ORI_DEBOUNCE_DELAY) {
+    debouncedState = candidateState;
     return true;
   }
   return false;
